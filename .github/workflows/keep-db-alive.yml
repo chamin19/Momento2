@@ -1,0 +1,40 @@
+name: Keep Supabase Database Alive
+
+on:
+  schedule:
+    # Run at 9:00 AM UTC every Monday and Thursday
+    - cron: '0 9 * * 1,4'
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Query Supabase Database
+        run: |
+          echo "Pinging Supabase database to keep it alive..."
+          
+          response=$(curl -s -X GET \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/events?select=id,title&limit=5" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json")
+          
+          echo "Response from database:"
+          echo "$response"
+          
+          # Check if response is valid JSON array
+          if echo "$response" | jq -e '. | type == "array"' > /dev/null 2>&1; then
+            count=$(echo "$response" | jq '. | length')
+            echo "✅ Successfully fetched $count events from database"
+          else
+            echo "❌ Failed to fetch events from database"
+            echo "Response: $response"
+            exit 1
+          fi
+
+      - name: Log Success
+        run: |
+          echo "🎉 Database ping completed successfully at $(date)"
