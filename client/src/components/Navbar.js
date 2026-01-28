@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bars3Icon, XMarkIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { useCalendar } from '../context/CalendarContext';
+import { Bars3Icon, XMarkIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { isConnected, connectCalendar, disconnectCalendar } = useCalendar();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -46,25 +44,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            
-            {/* Calendar Connection Button */}
-            {isConnected ? (
-              <button
-                onClick={disconnectCalendar}
-                className="flex items-center space-x-1 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors"
-              >
-                <CalendarIcon className="h-4 w-4" />
-                <span>Calendar Connected</span>
-              </button>
-            ) : (
-              <button
-                onClick={connectCalendar}
-                className="flex items-center space-x-1 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-              >
-                <CalendarIcon className="h-4 w-4" />
-                <span>Connect Calendar</span>
-              </button>
-            )}
           </div>
 
           {/* Mobile menu button */}
@@ -101,30 +80,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            
-            {isConnected ? (
-              <button
-                onClick={() => {
-                  disconnectCalendar();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-center space-x-1 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium"
-              >
-                <CalendarIcon className="h-4 w-4" />
-                <span>Calendar Connected</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  connectCalendar();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-center space-x-1 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium"
-              >
-                <CalendarIcon className="h-4 w-4" />
-                <span>Connect Calendar</span>
-              </button>
-            )}
           </div>
         </div>
       )}

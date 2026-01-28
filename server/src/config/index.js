@@ -12,8 +12,4 @@ module.exports = {
   openCage: {
     apiKey: process.env.OPENCAGE_API_KEY,
   },
-  nylas: {
-    clientId: process.env.NYLAS_CLIENT_ID,
-    apiKey: process.env.NYLAS_API_KEY,
-  },
 };

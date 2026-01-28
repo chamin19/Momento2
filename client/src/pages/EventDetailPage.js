@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useEvents } from '../context/EventContext';
-import { useCalendar } from '../context/CalendarContext';
 import { Loading } from '../components';
-import { formatDate, formatTime } from '../utils';
+import { formatDate, downloadICSFile, generateGoogleCalendarUrl, generateOutlookCalendarUrl } from '../utils';
 import { 
   CalendarIcon, 
   MapPinIcon, 
@@ -12,44 +11,37 @@ import {
   ArrowLeftIcon,
   ShareIcon,
   LinkIcon,
-  CheckCircleIcon
+  ArrowDownTrayIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
 const EventDetailPage = () => {
   const { id } = useParams();
   const { currentEvent, loading, error, fetchEventById } = useEvents();
-  const { isConnected, addEventToCalendar, connectCalendar } = useCalendar();
-  const [addedToCalendar, setAddedToCalendar] = useState(false);
-  const [adding, setAdding] = useState(false);
+  const [showCalendarOptions, setShowCalendarOptions] = useState(false);
 
   useEffect(() => {
     fetchEventById(id);
   }, [id, fetchEventById]);
 
-  const handleAddToCalendar = async () => {
-    if (!isConnected) {
-      connectCalendar();
-      return;
+  const handleDownloadICS = () => {
+    if (currentEvent) {
+      downloadICSFile(currentEvent);
+      setShowCalendarOptions(false);
     }
+  };
 
-    setAdding(true);
-    try {
-      const eventData = {
-        title: currentEvent.title,
-        description: currentEvent.description,
-        location: currentEvent.locations?.address || currentEvent.locations?.city,
-        startTime: `${currentEvent.event_date}T${currentEvent.start_time || '09:00'}`,
-        endTime: `${currentEvent.event_date}T${currentEvent.end_time || '17:00'}`,
-      };
-      
-      const result = await addEventToCalendar(eventData);
-      if (result) {
-        setAddedToCalendar(true);
-      }
-    } catch (err) {
-      console.error('Failed to add to calendar:', err);
-    } finally {
-      setAdding(false);
+  const handleGoogleCalendar = () => {
+    if (currentEvent) {
+      window.open(generateGoogleCalendarUrl(currentEvent), '_blank');
+      setShowCalendarOptions(false);
+    }
+  };
+
+  const handleOutlookCalendar = () => {
+    if (currentEvent) {
+      window.open(generateOutlookCalendarUrl(currentEvent), '_blank');
+      setShowCalendarOptions(false);
     }
   };
 
@@ -65,7 +57,6 @@ const EventDetailPage = () => {
         console.log('Share cancelled');
       }
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
     }
@@ -106,9 +97,9 @@ const EventDetailPage = () => {
         </Link>
 
         {/* Event Card */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-xl shadow-lg overflow-visible">
           {/* Event Header Image */}
-          <div className="h-64 bg-gradient-to-r from-primary-500 to-secondary-500 relative">
+          <div className="h-64 bg-gradient-to-r from-primary-500 to-secondary-500 relative rounded-t-xl overflow-hidden">
             {currentEvent.image_url ? (
               <img
                 src={currentEvent.image_url}
@@ -195,30 +186,51 @@ const EventDetailPage = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              {/* Add to Calendar */}
-              <button
-                onClick={handleAddToCalendar}
-                disabled={adding || addedToCalendar}
-                className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-colors ${
-                  addedToCalendar
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-primary-600 text-white hover:bg-primary-700'
-                }`}
-              >
-                {addedToCalendar ? (
-                  <>
-                    <CheckCircleIcon className="h-5 w-5 mr-2" />
-                    Added to Calendar
-                  </>
-                ) : adding ? (
-                  'Adding...'
-                ) : (
-                  <>
-                    <CalendarIcon className="h-5 w-5 mr-2" />
-                    {isConnected ? 'Add to Calendar' : 'Connect Calendar'}
-                  </>
+              {/* Add to Calendar Dropdown */}
+              <div className="relative flex-1">
+                <button
+                  onClick={() => setShowCalendarOptions(!showCalendarOptions)}
+                  className="w-full flex items-center justify-center px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                >
+                  <CalendarIcon className="h-5 w-5 mr-2" />
+                  Add to Calendar
+                  <ChevronDownIcon className="h-4 w-4 ml-2" />
+                </button>
+                
+                {showCalendarOptions && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <button
+                      onClick={handleGoogleCalendar}
+                      className="w-full flex items-center px-4 py-3 hover:bg-gray-50 text-left text-gray-700"
+                    >
+                      <img 
+                        src="https://www.google.com/favicon.ico" 
+                        alt="Google" 
+                        className="w-5 h-5 mr-3"
+                      />
+                      Google Calendar
+                    </button>
+                    <button
+                      onClick={handleOutlookCalendar}
+                      className="w-full flex items-center px-4 py-3 hover:bg-gray-50 text-left border-t text-gray-700"
+                    >
+                      <img 
+                        src="https://outlook.live.com/favicon.ico" 
+                        alt="Outlook" 
+                        className="w-5 h-5 mr-3"
+                      />
+                      Outlook Calendar
+                    </button>
+                    <button
+                      onClick={handleDownloadICS}
+                      className="w-full flex items-center px-4 py-3 hover:bg-gray-50 text-left border-t text-gray-700"
+                    >
+                      <ArrowDownTrayIcon className="h-5 w-5 mr-3 text-gray-500" />
+                      Download .ics File
+                    </button>
+                  </div>
                 )}
-              </button>
+              </div>
 
               {/* Share Button */}
               <button

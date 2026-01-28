@@ -1,7 +1,7 @@
 const express = require('express');
 const config = require('./config');
 const { corsMiddleware, errorHandler } = require('./middleware');
-const { eventRoutes, geocodingRoutes, calendarRoutes } = require('./routes');
+const { eventRoutes, geocodingRoutes } = require('./routes');
 
 const app = express();
 
@@ -18,7 +18,6 @@ app.get('/api/health', (req, res) => {
 // API Routes
 app.use('/api/events', eventRoutes);
 app.use('/api/geocode', geocodingRoutes);
-app.use('/api/calendar', calendarRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -7,7 +7,7 @@ A full-stack web application that aggregates free tech events and programs in th
 - **Event Discovery**: Browse, search, and filter tech events across the GTA
 - **Single-Page Architecture**: Smooth client-side routing for seamless navigation
 - **Interactive Map**: View events on an interactive map powered by OpenCage geocoding
-- **Calendar Integration**: Sync events to your calendar with automated reminders via Nylas API
+- **Calendar Export**: Add events to Google Calendar, Outlook, or download .ics files
 - **Responsive Design**: Beautiful UI with Tailwind CSS that works on all devices
 - **Smart Filtering**: Filter by category, location, date, and tags
 
@@ -19,8 +19,8 @@ A full-stack web application that aggregates free tech events and programs in th
 - **HTTP Client**: Axios
 - **APIs**: 
   - OpenCage (geocoding/location mapping)
-  - Nylas (calendar integrations)
 - **Maps**: React Leaflet with OpenStreetMap
+- **Calendar**: .ics file generation, Google Calendar & Outlook links
 
 ## 📁 Project Structure
 
@@ -53,7 +53,6 @@ A full-stack web application that aggregates free tech events and programs in th
 - npm or yarn
 - Supabase account (for database)
 - OpenCage API key (for geocoding)
-- Nylas API credentials (for calendar integration)
 
 ### Environment Setup
 
@@ -68,9 +67,6 @@ DATABASE_URL=your_supabase_database_url
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 OPENCAGE_API_KEY=your_opencage_api_key
-NYLAS_CLIENT_ID=your_nylas_client_id
-NYLAS_CLIENT_SECRET=your_nylas_client_secret
-NYLAS_API_KEY=your_nylas_api_key
 PORT=5001
 NODE_ENV=development
 CLIENT_URL=http://localhost:3000
@@ -133,13 +129,6 @@ The application will be available at:
 - `GET /api/geocode?address=` - Geocode an address
 - `GET /api/geocode/reverse?lat=&lng=` - Reverse geocode
 - `GET /api/geocode/event?location=` - Geocode event location (GTA-specific)
-
-### Calendar
-- `GET /api/calendar/auth` - Get OAuth URL
-- `GET /api/calendar/callback` - Handle OAuth callback
-- `POST /api/calendar/events` - Add event to calendar
-- `GET /api/calendar/:grantId/calendars` - Get user calendars
-- `DELETE /api/calendar/:grantId/events/:eventId` - Remove event
 
 ## 🎨 Key Components
 
